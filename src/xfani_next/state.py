@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .util import normalize_title, title_matches
+from .util import title_matches
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 STATUS_DIR = REPO_ROOT / "status"
@@ -53,8 +53,11 @@ def save_already(entries: list[str]) -> None:
     _save(STATUS_DIR / "already.json", entries)
 
 
-def is_known_title(title: str) -> bool:
-    """按标题去重（already 条目格式 "id:标题"，跨站 ID 不同但标题一致）。"""
+def title_in_any_record(title: str) -> bool:
+    """标题是否已记录在 already（title_matches 模糊比对，含年份尾容错）。
+
+    注意：cache 只是解析缓存，不代表已下载，不参与去重。
+    """
     known = [e.split(":", 1)[1] for e in load_already() if ":" in e]
     return any(title_matches(title, k) for k in known)
 
@@ -79,20 +82,10 @@ def cached_title(aid: int) -> str | None:
     return load_cache(aid).get("title")
 
 
-def cache_known_titles() -> list[str]:
-    """cache 中已解析过的番剧标题（用于去重兜底）。"""
-    titles = []
-    if CACHE_DIR.exists():
-        for p in CACHE_DIR.glob("*_info.json"):
-            t = _load(p, {}).get("title")
-            if t:
-                titles.append(t)
-    return titles
-
-
 def title_in_any_record(title: str) -> bool:
-    """标题是否已在 already 或本地缓存中（normalize 后比对）。"""
-    nt = normalize_title(title)
-    if any(normalize_title(t) == nt for t in cache_known_titles()):
-        return True
-    return is_known_title(title)
+    """标题是否已记录在 already（title_matches 模糊比对，含年份尾容错）。
+
+    注意：cache 只是解析缓存，不代表已下载，不参与去重。
+    """
+    known = [e.split(":", 1)[1] for e in load_already() if ":" in e]
+    return any(title_matches(title, k) for k in known)

@@ -37,6 +37,16 @@ def parse_ep_spec(spec: str | None, total: int) -> list[int]:
 
 
 def resolve_aid(args) -> int:
+    target = getattr(args, "target", None)
+    if target:
+        if target.isdigit():
+            return int(target)
+        import re
+
+        m = re.search(r"/anime/(\d+)", target)
+        if m:
+            return int(m.group(1))
+        raise SystemExit(f"无法从目标解析番剧 ID: {target}")
     if args.id:
         return int(args.id)
     if args.url:
@@ -166,6 +176,7 @@ def run_todo(session, **kwargs) -> None:
 
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(prog="xfani", description="稀饭动漫 Next 站下载器")
+    parser.add_argument("target", nargs="?", help="番剧 ID 或 URL（可选，如 3397）")
     parser.add_argument("--url", help="番剧页 URL，如 https://next.xifanacg.com/anime/3397")
     parser.add_argument("--id", help="新版番剧 ID，如 3397")
     parser.add_argument("--search", help="按标题搜索新版 ID")
@@ -188,7 +199,7 @@ def main(argv=None) -> None:
         if args.list:
             cmd_list(session, resolve_aid(args))
             return
-        if args.url or args.id:
+        if args.target or args.url or args.id:
             download_anime(
                 session,
                 resolve_aid(args),
