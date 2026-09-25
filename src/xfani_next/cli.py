@@ -104,7 +104,7 @@ def download_anime(session, aid: int, *, ep_spec=None, source_priority=None) -> 
     pending: list[site.Episode] = []
     for pos in positions:
         ep = info.episodes[pos - 1]
-        dest = dest_dir / sanitize_filename(f"{title}{ep.label}") .with_suffix(".mp4")
+        dest = dest_dir / f"{sanitize_filename(f'{title}{ep.label}')}.mp4"
         if str(ep.episode_id) in done:
             continue
         if dest.exists() and dest.stat().st_size > 1024 * 1024:
