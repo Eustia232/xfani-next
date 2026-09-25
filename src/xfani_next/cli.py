@@ -17,7 +17,7 @@ from pathlib import Path
 
 from . import site, state
 from .downloader import download
-from .migrate import run_migrate
+from .migrate import refine_unmatched, run_migrate
 from .util import sanitize_filename, title_matches
 
 
@@ -184,6 +184,8 @@ def main(argv=None) -> None:
     parser.add_argument("--ep", help="集数范围，如 1-3 或 1,5,7-9")
     parser.add_argument("--source", help="线路优先级，逗号分隔，如 AL,xfxf1")
     parser.add_argument("--migrate", action="store_true", help="旧 already 标题 → 新 ID 映射")
+    parser.add_argument("--refine", action="store_true",
+                        help="对 migrate_unmatched.json 做二次模糊匹配（年份消歧）")
     parser.add_argument("--old", default=str(Path.home() / "Codes/xfani/status/already.json"),
                         help="旧仓库 already.json 路径（--migrate 用）")
     args = parser.parse_args(argv)
@@ -192,6 +194,9 @@ def main(argv=None) -> None:
     try:
         if args.migrate:
             run_migrate(session, Path(args.old).expanduser())
+            return
+        if args.refine:
+            refine_unmatched(session)
             return
         if args.search:
             cmd_search(session, args.search)
