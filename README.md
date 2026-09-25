@@ -30,7 +30,7 @@ uv run pytest                          # 单元测试
 与旧版 xfani 的习惯一致，只是命令和 ID 体系变了：
 
 1. **装依赖**：`pip install uv` → 仓库目录下 `uv sync`；
-2. **自定义下载路径**：编辑 `status/download_config.json` 的 `"path"`（如 `"D:/Eustia/Video"`）；
+2. **自定义下载路径**：编辑 `status/download_config.json` 的 `"path"`（如 `"D:/Eustia/Video"`）；JSON 里 Windows 路径推荐正斜杠 `D:/...`，写单反斜杠 `D:\Eustia\Video` 也能被容错解析（会自动补转义）；
 3. **写入 todo**：`status/todo.json` 只填**新版 ID**（如 `["3397"]`，用 `--search` 查；旧版 ID 体系不通用）；
 4. **批量下载**：`uv run xfani`（默认处理 todo 队列）；单部直下 `uv run xfani 3397`。
 

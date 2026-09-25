@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from .util import title_matches
@@ -11,11 +12,26 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 STATUS_DIR = REPO_ROOT / "status"
 CACHE_DIR = REPO_ROOT / "cache"
 
+# JSON 合法转义字符（\uXXXX 的 u 也在内）；其余 \x 视为手写 Windows 路径漏写转义
+_BAD_ESCAPE = re.compile(r'\\(?!["\\/bfnrtu])')
+
+
+def _loads_tolerant(text: str):
+    """解析 JSON；对手写的 Windows 单反斜杠路径（"D:\\Eustia\\Video"）自动修复。
+
+    json.loads 失败时把非法 \\x 转义补成 \\\\x 再试一次——status 下的配置
+    文件常被手工编辑，按原始文本容错比报错友好。
+    """
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return json.loads(_BAD_ESCAPE.sub(r"\\\\", text))
+
 
 def _load(path: Path, default):
     if path.exists():
         with open(path, encoding="utf-8") as f:
-            return json.load(f)
+            return _loads_tolerant(f.read())
     return default
 
 
