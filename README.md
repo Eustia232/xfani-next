@@ -19,6 +19,7 @@ uv run xfani --id 3397                 # 下载整部
 uv run xfani --id 3397 --ep 1-3        # 下载指定集
 uv run xfani                           # 处理 status/todo.json 队列
 uv run xfani --migrate                 # 旧仓库 already.json 标题 → 新 ID 迁移
+uv run xfani --refine                  # 对未命中项做二次模糊匹配（difflib + 年份消歧）
 uv run pytest                          # 单元测试
 ```
 
