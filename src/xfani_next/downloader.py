@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import http.client
 import time
 from pathlib import Path
 
 import requests
+import urllib3.exceptions
 from tqdm import tqdm
 
 CHUNK_SIZE = 256 * 1024
@@ -13,6 +15,17 @@ CHUNK_SIZE = 256 * 1024
 
 class DownloadError(Exception):
     pass
+
+
+# 可重试的异常：requests 家族全部（含 ChunkedEncodingError——流式中断时
+# requests 会把 urllib3 的 ProtocolError("Connection broken: IncompleteRead…")
+# 包装成它抛出，而不是 ConnectionError），以及可能裸抛的底层类型。
+RETRYABLE_ERRORS = (
+    requests.RequestException,
+    urllib3.exceptions.HTTPError,
+    http.client.IncompleteRead,
+    DownloadError,
+)
 
 
 def download(
@@ -74,7 +87,7 @@ def download(
             part.rename(dest)
             return dest
 
-        except (requests.ConnectionError, requests.Timeout, DownloadError) as exc:
+        except RETRYABLE_ERRORS as exc:
             last_exc = exc
             if attempt < retries:
                 backoff = 2 ** (attempt + 1)
