@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+cache/
+*.part
+status/migrate_unmatched.json

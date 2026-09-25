@@ -1,0 +1,27 @@
+[project]
+name = "xfani-next"
+version = "0.1.0"
+description = "稀饭动漫 Next 站（next.xifanacg.com）下载器"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.32",
+    "beautifulsoup4>=4.12",
+    "tqdm>=4.66",
+]
+
+[project.scripts]
+xfani = "xfani_next.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/xfani_next"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
