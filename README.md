@@ -23,6 +23,19 @@ uv run xfani --refine                  # 对未命中项做二次模糊匹配（
 uv run pytest                          # 单元测试
 ```
 
+`python main.py` 与 `uv run xfani` 等价（保留旧习惯；需先激活 .venv 或用 uv run）。
+
+## Windows 部署与批量下载工作流
+
+与旧版 xfani 的习惯一致，只是命令和 ID 体系变了：
+
+1. **装依赖**：`pip install uv` → 仓库目录下 `uv sync`；
+2. **自定义下载路径**：编辑 `status/download_config.json` 的 `"path"`（如 `"D:/Eustia/Video"`）；
+3. **写入 todo**：`status/todo.json` 只填**新版 ID**（如 `["3397"]`，用 `--search` 查；旧版 ID 体系不通用）；
+4. **批量下载**：`uv run xfani`（默认处理 todo 队列）；单部直下 `uv run xfani 3397`。
+
+中断重跑会从 `.part` 断点续传，已完成的集与已完成的番（按标题去重）自动跳过。
+
 ## 配置（status/download_config.json）
 
 ```json
